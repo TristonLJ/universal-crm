@@ -10,10 +10,13 @@ export class Ui {
   readonly importSheet = signal(false);
   readonly workbench = signal<string | null>(null);
   readonly sendFile = signal<string | null>(null);
+  readonly viewer = signal<string | null>(null);
   /** Rows handed to the import screen from the workbench, skipping the file-choosing step. */
   readonly importPrefill = signal<ParsedFile | null>(null);
 
   openRecord(id?: string, stageId?: string) { this.recordSheet.set({ id, stageId }); }
+  /** Spreadsheets open in the workbench, everything else in the viewer. */
+  openFile(f: { id: string; name: string }) { /\.(xlsx|csv)$/i.test(f.name) ? this.workbench.set(f.id) : this.viewer.set(f.id); }
   openWorkbench(fileId: string) { this.workbench.set(fileId); }
   openContact(id?: string) { this.contactSheet.set({ id }); }
 }

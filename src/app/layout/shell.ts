@@ -25,6 +25,7 @@ import { ContactSheet } from '../shared/contact-sheet';
 import { ImportSheet } from '../shared/import-sheet';
 import { Workbench } from '../shared/workbench';
 import { SendFile } from '../shared/send-file';
+import { FileViewer } from '../shared/file-viewer';
 import { Tour } from '../core/tour.service';
 import { TourOverlay } from './tour';
 
@@ -33,7 +34,7 @@ import { TourOverlay } from './tour';
   imports: [
     RouterOutlet, RouterLink, RouterLinkActive, NgIcon, HlmSidebarImports, HlmButtonImports, HlmDropdownMenuImports,
     HlmAvatarImports, HlmBadgeImports, HlmSeparatorImports, HlmKbdImports, HlmToasterImports,
-    CommandPalette, RecordSheet, ContactSheet, ImportSheet, Workbench, SendFile, TourOverlay,
+    CommandPalette, RecordSheet, ContactSheet, ImportSheet, Workbench, SendFile, FileViewer, TourOverlay,
   ],
   template: `
     <div hlmSidebarWrapper>
@@ -170,6 +171,7 @@ import { TourOverlay } from './tour';
     <app-import-sheet />
     <app-workbench />
     <app-send-file />
+    <app-file-viewer />
     <app-tour />
   `,
 })

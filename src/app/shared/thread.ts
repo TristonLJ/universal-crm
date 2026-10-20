@@ -4,9 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { NgIcon } from '@ng-icons/core';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmInputImports } from '@spartan-ng/helm/input';
-import { FileStore } from '../core/files';
 import { FileMeta, Message } from '../core/models';
-import { isSheetFile } from '../core/sheets';
 import { Ui } from '../core/ui.service';
 import { Messages } from '../core/messages';
 import { Store } from '../core/store.service';
@@ -56,7 +54,6 @@ import { Store } from '../core/store.service';
 export class Thread {
   readonly msgs = inject(Messages);
   readonly store = inject(Store);
-  private readonly fileStore = inject(FileStore);
   private readonly ui = inject(Ui);
 
   readonly thread = input.required<string>();
@@ -90,7 +87,7 @@ export class Thread {
     return (m.fileIds ?? []).map(id => this.store.state().files.find(f => f.id === id)).filter((f): f is FileMeta => !!f);
   }
   /** Spreadsheets open in the workbench; everything else opens in a new tab. */
-  openFile(f: FileMeta) { if (isSheetFile(f.name)) this.ui.openWorkbench(f.id); else this.fileStore.open(f); }
+  openFile(f: FileMeta) { this.ui.openFile(f); }
 
   send() { this.msgs.send(this.thread(), this.text()); this.text.set(''); }
   insert(name: string) { this.text.update(t => t.replace(/@[^\s@]*$/, '') + '@' + name + ' '); }

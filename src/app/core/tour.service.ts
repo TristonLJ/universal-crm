@@ -31,7 +31,7 @@ const STEPS: TourStep[] = [
   { id: 'messages', target: 'chat', route: '/messages', needs: 'messages', title: 'Messages',
     body: () => 'Company chat, direct messages and a chat on every record, so nobody has to leave for another app. Use @name to get someone\'s attention. A red badge in the menu means you were mentioned.' },
   { id: 'files', target: 'file-drop', route: '/files', needs: 'files', title: 'Files that file themselves',
-    body: () => 'Drop contracts, quotes, CVs or spreadsheets here. PDFs, Excel and text files are read, then filed on the right record when the name or contents match. Anything unmatched waits in the inbox, and "New record" can pre-fill a record from a file.' },
+    body: () => 'Drop contracts, quotes, CVs or spreadsheets here. PDFs, Excel and text files are read, then filed on the right record when the name or contents match. Click a file to preview it right here. Anything unmatched waits in the inbox, and "New record" can pre-fill a record from a file.' },
   { id: 'workbench', target: 'workbench', route: '/files', needs: 'files', title: 'The spreadsheet Workbench',
     body: () => 'Open any Excel or CSV file to auto-tidy it (text to real numbers and dates, empty rows removed, duplicates dropped), sort it, edit it and split it by a column. Every save is a new version you can restore. Save your steps as a recipe and they run automatically on future files. Then send the rows into a workspace, or send the sheet to a manager for review.' },
   { id: 'search', target: 'search', title: 'Search and jump to anything',

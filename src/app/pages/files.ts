@@ -140,7 +140,7 @@ export class FilesPage {
 
   recordLabel = (id: string) => this.recById().get(id)?.title ?? '';
 
-  async open(f: FileMeta) { if (!(await this.files.open(f))) toast.error('The file data is missing from this browser.'); }
+  open(f: FileMeta) { this.ui.openFile(f); }
   async download(f: FileMeta) { if (!(await this.files.open(f, true))) toast.error('The file data is missing from this browser.'); }
   fileTo(f: FileMeta, recordId: string) {
     this.files.file(f.id, recordId);

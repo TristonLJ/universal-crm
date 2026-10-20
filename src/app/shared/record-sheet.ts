@@ -136,7 +136,7 @@ interface Draft { rec: CrmRecord; w: Workspace; existing: boolean; editable: boo
                 @for (f of recFiles(); track f.id) {
                   <div class="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm">
                     <ng-icon name="lucideFileText" class="text-muted-foreground size-4 shrink-0" />
-                    <button class="min-w-0 flex-1 truncate text-left font-medium hover:underline" (click)="openFile(f)">{{ f.name }}</button>
+                    <button class="min-w-0 flex-1 truncate text-left font-medium hover:underline" (click)="ui.openFile(f)">{{ f.name }}</button>
                     <span class="text-muted-foreground shrink-0 text-xs">{{ size(f.size) }} &middot; {{ f.addedAt | date: 'd MMM' }}</span>
                     @if (isSheet(f.name)) { <button hlmBtn variant="ghost" size="sm" (click)="ui.openWorkbench(f.id)" title="Open in the workbench"><ng-icon name="lucideTable2" /></button> }
                     <button hlmBtn variant="ghost" size="sm" (click)="ui.sendFile.set(f.id)" title="Send to a colleague or manager"><ng-icon name="lucideSend" /></button>

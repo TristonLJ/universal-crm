@@ -231,9 +231,15 @@ export async function extractText(f: File): Promise<string> {
   return out.replace(/[ \t]+/g, ' ').trim().slice(0, TEXT_CAP);
 }
 
-async function pdfText(f: File): Promise<string> {
+/** pdf.js, loaded on first use, with its worker file served from the app's own folder. */
+export async function loadPdfjs() {
   const pdfjs = await import('pdfjs-dist');
   pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs/pdf.worker.min.mjs', document.baseURI).href;
+  return pdfjs;
+}
+
+async function pdfText(f: File): Promise<string> {
+  const pdfjs = await loadPdfjs();
   const task = pdfjs.getDocument({ data: new Uint8Array(await f.arrayBuffer()) });
   const doc = await task.promise;
   let out = '';
