@@ -10,11 +10,24 @@ import { Ui } from '../core/ui.service';
 import { fileSize } from './file-size';
 import { TableTool, canExtractTables } from '../core/tables';
 
-type Kind = 'loading' | 'image' | 'pdf' | 'text' | 'none' | 'error';
+type Kind = 'loading' | 'image' | 'pdf' | 'doc' | 'text' | 'none' | 'error';
 const IMAGE = /\.(png|jpe?g|gif|webp|svg|bmp|avif)$/i;
 const TEXT = /\.(txt|md|json|xml|log|eml|html?|yml|yaml|ini|ts|js|css)$/i;
 const MAX_PAGES = 40;
 const MAX_TEXT = 300_000;
+
+/** Word file to simple HTML. Links are limited to web and mail addresses and open in a new tab. */
+async function wordToHtml(blob: Blob): Promise<string> {
+  const mammoth = await import('mammoth');
+  const { value } = await mammoth.convertToHtml({ arrayBuffer: await blob.arrayBuffer() });
+  const doc = new DOMParser().parseFromString(value, 'text/html');
+  doc.querySelectorAll('a').forEach(a => {
+    const href = a.getAttribute('href') ?? '';
+    if (/^(https?:|mailto:|#)/i.test(href)) { a.setAttribute('target', '_blank'); a.setAttribute('rel', 'noopener noreferrer'); }
+    else a.removeAttribute('href');
+  });
+  return doc.body.innerHTML || '<p>This document is empty.</p>';
+}
 
 /** Preview a stored file without leaving the app: PDFs, images and text. Other types offer a download. */
 @Component({
@@ -39,6 +52,15 @@ const MAX_TEXT = 300_000;
                   @if (rendering()) { <p class="text-muted-foreground py-4 text-center text-sm">Loading more pages...</p> }
                   @if (more()) { <p class="text-muted-foreground py-2 text-center text-sm">Showing the first {{ pages().length }} pages. Download the file to see the rest.</p> }
                 </div>
+              }
+              @case ('doc') {
+                <article class="mx-auto max-w-3xl rounded-lg border bg-white p-8 text-sm leading-relaxed text-black shadow-sm sm:p-12
+                                [&_a]:text-blue-700 [&_a]:underline [&_h1]:mt-4 [&_h1]:mb-3 [&_h1]:text-2xl [&_h1]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_h2]:text-xl [&_h2]:font-semibold
+                                [&_h3]:mt-3 [&_h3]:mb-2 [&_h3]:text-lg [&_h3]:font-semibold [&_img]:my-3 [&_img]:max-w-full [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-6
+                                [&_p]:my-2 [&_table]:my-3 [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-neutral-300 [&_td]:p-2 [&_td]:align-top
+                                [&_th]:border [&_th]:border-neutral-300 [&_th]:bg-neutral-100 [&_th]:p-2 [&_th]:text-left [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-6"
+                         [innerHTML]="html()"></article>
+                <p class="text-muted-foreground mx-auto mt-3 max-w-3xl text-center text-xs">Simplified preview: fonts, colours and page layout are not shown. Download the file to see it exactly.</p>
               }
               @case ('text') { <pre class="bg-background mx-auto max-w-3xl overflow-x-auto rounded-lg border p-4 text-sm whitespace-pre-wrap">{{ text() }}</pre> }
               @case ('none') {
@@ -81,6 +103,7 @@ export class FileViewer {
   readonly kind = signal<Kind>('loading');
   readonly url = signal('');
   readonly text = signal('');
+  readonly html = signal('');
   readonly pages = signal<string[]>([]);
   readonly more = signal(false);
   readonly rendering = signal(false);
@@ -105,7 +128,7 @@ export class FileViewer {
 
   private reset() {
     if (this.url()) URL.revokeObjectURL(this.url());
-    this.url.set(''); this.text.set(''); this.pages.set([]); this.more.set(false); this.rendering.set(false); this.error.set('');
+    this.url.set(''); this.text.set(''); this.html.set(''); this.pages.set([]); this.more.set(false); this.rendering.set(false); this.error.set('');
   }
 
   private async load(f: FileMeta | null) {
@@ -124,6 +147,11 @@ export class FileViewer {
       } else if (n.endsWith('.pdf')) {
         this.kind.set('pdf');
         await this.renderPdf(blob, me);
+      } else if (n.endsWith('.docx')) {
+        const html = await wordToHtml(blob);
+        if (me !== this.run) return;
+        this.html.set(html);
+        this.kind.set('doc');
       } else if (TEXT.test(n) || blob.type.startsWith('text/')) {
         const t = await blob.text();
         if (me !== this.run) return;
