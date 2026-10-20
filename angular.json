@@ -20,7 +20,7 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "allowedCommonJsDependencies": ["papaparse"],
+            "allowedCommonJsDependencies": ["@xmldom/xmldom", "@xmldom/xmldom/lib/dom", "base64-js", "dingbat-to-unicode", "jszip", "lop", "mammoth", "papaparse", "regenerator-runtime/runtime", "tesseract.js", "xmlbuilder"],
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
@@ -44,7 +44,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "1.2MB",
+                  "maximumWarning": "1.5MB",
                   "maximumError": "2MB"
                 },
                 {

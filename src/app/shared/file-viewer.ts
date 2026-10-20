@@ -8,6 +8,7 @@ import { FileMeta } from '../core/models';
 import { Store } from '../core/store.service';
 import { Ui } from '../core/ui.service';
 import { fileSize } from './file-size';
+import { TableTool, canExtractTables } from '../core/tables';
 
 type Kind = 'loading' | 'image' | 'pdf' | 'text' | 'none' | 'error';
 const IMAGE = /\.(png|jpe?g|gif|webp|svg|bmp|avif)$/i;
@@ -54,6 +55,11 @@ const MAX_TEXT = 300_000;
             <button hlmBtn variant="outline" (click)="download(f)"><ng-icon name="lucideDownload" /> Download</button>
             <div class="flex flex-wrap gap-2">
               @if (kind() === 'pdf' || kind() === 'image') { <button hlmBtn variant="outline" (click)="newTab(f)"><ng-icon name="lucideExternalLink" /> Open in new tab</button> }
+              @if (canTables(f.name)) {
+                <button hlmBtn variant="outline" [disabled]="!!tables.status()" (click)="extract(f)">
+                  <ng-icon name="lucideTable2" /> {{ tables.status()?.id === f.id ? tables.status()!.msg : 'Extract tables' }}
+                </button>
+              }
               <button hlmBtn variant="outline" (click)="send(f)"><ng-icon name="lucideSend" /> Send...</button>
               <button hlmBtn (click)="close()">Close</button>
             </div>
@@ -80,6 +86,13 @@ export class FileViewer {
   readonly rendering = signal(false);
   readonly error = signal('');
   size = fileSize;
+  readonly tables = inject(TableTool);
+  canTables = canExtractTables;
+
+  async extract(f: FileMeta) {
+    const r = await this.tables.run(f);
+    if (r.ok) { toast.success(r.message); this.close(); } else toast.error(r.message);
+  }
 
   private run = 0;   // guards against a slow load finishing after the viewer moved on
 

@@ -16,6 +16,7 @@ import { Ui } from '../core/ui.service';
 import { FileDrop } from '../shared/file-drop';
 import { fileSize } from '../shared/file-size';
 import { isSheetFile } from '../core/sheets';
+import { TableTool, canExtractTables } from '../core/tables';
 import { PageHeader } from '../shared/page-header';
 
 @Component({
@@ -77,6 +78,11 @@ import { PageHeader } from '../shared/page-header';
                     @if (isSheet(f.name)) {
                       <button hlmBtn variant="ghost" size="sm" data-tour="workbench" (click)="ui.openWorkbench(f.id)" title="Open, tidy, sort and edit this spreadsheet"><ng-icon name="lucideTable2" /> Workbench</button>
                     }
+                    @if (canTables(f.name) && access.can('create')) {
+                      <button hlmBtn variant="ghost" size="sm" [disabled]="!!tables.status()" (click)="extract(f)" title="Find the tables in this file and turn them into a spreadsheet">
+                        <ng-icon name="lucideTable2" /> {{ tables.status()?.id === f.id ? tables.status()!.msg : 'Tables' }}
+                      </button>
+                    }
                     @if (!f.recordId && access.can('create')) {
                       <button hlmBtn variant="ghost" size="sm" (click)="makeRecord(f)" title="Create a new record pre-filled from this file"><ng-icon name="lucideWand" /> New record</button>
                     }
@@ -106,6 +112,13 @@ export class FilesPage {
   private readonly files = inject(FileStore);
   readonly ui = inject(Ui);
   isSheet = isSheetFile;
+  readonly tables = inject(TableTool);
+  canTables = canExtractTables;
+
+  async extract(f: FileMeta) {
+    const r = await this.tables.run(f);
+    r.ok ? toast.success(r.message) : toast.error(r.message);
+  }
 
   readonly search = signal('');
   readonly view = signal<'all' | 'inbox' | 'filed' | 'shared' | 'review'>('all');
